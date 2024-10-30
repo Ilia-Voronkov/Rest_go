@@ -2,14 +2,11 @@ package messagesService
 
 import "gorm.io/gorm"
 
+// MessageRepository - интерфейс репозитория для сообщений
 type MessageRepository interface {
-	// CreateMessage - создаем сообщение
 	CreateMessage(message Message) (Message, error)
-	// GetAllMessages - возвращаем все сообщения
 	GetAllMessages() ([]Message, error)
-	// UpdateMessageByID - обновляем сообщение по ID
 	UpdateMessage(id int, newMessage Message) (Message, error)
-	// DeleteMessageByID - удаляем сообщение по ID
 	DeleteMessageByID(id int) error
 }
 
@@ -17,16 +14,13 @@ type messageRepository struct {
 	db *gorm.DB
 }
 
-func NewMessageRepository(db *gorm.DB) *messageRepository {
+func NewMessageRepository(db *gorm.DB) MessageRepository {
 	return &messageRepository{db: db}
 }
 
 func (r *messageRepository) CreateMessage(message Message) (Message, error) {
 	err := r.db.Create(&message).Error
-	if err != nil {
-		return Message{}, err
-	}
-	return message, nil
+	return message, err
 }
 
 func (r *messageRepository) GetAllMessages() ([]Message, error) {
@@ -37,26 +31,15 @@ func (r *messageRepository) GetAllMessages() ([]Message, error) {
 
 func (r *messageRepository) UpdateMessage(id int, newMessage Message) (Message, error) {
 	var message Message
-	// Найдем сообщение по ID
 	err := r.db.First(&message, id).Error
 	if err != nil {
 		return Message{}, err
 	}
-
-	// Обновим сообщение
 	message.Text = newMessage.Text
 	err = r.db.Save(&message).Error
-	if err != nil {
-		return Message{}, err
-	}
-	return message, nil
+	return message, err
 }
 
 func (r *messageRepository) DeleteMessageByID(id int) error {
-	var message Message
-	err := r.db.First(&message, id).Error
-	if err != nil {
-		return err
-	}
-	return r.db.Delete(&message).Error
+	return r.db.Delete(&Message{}, id).Error
 }

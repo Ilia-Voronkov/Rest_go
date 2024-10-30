@@ -1,5 +1,6 @@
 package messagesService
 
+// MessageService - сервис для работы с сообщениями
 type MessageService struct {
 	repo MessageRepository
 }

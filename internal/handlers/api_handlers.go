@@ -1,12 +1,9 @@
 package handlers
 
 import (
-	"encoding/json"
-	"net/http"
-	"strconv"
-
 	"Rest_go/internal/messagesService"
-	"github.com/gorilla/mux"
+	"Rest_go/internal/web/tasks"
+	"context"
 )
 
 type Handler struct {
@@ -17,97 +14,67 @@ func NewHandler(service *messagesService.MessageService) *Handler {
 	return &Handler{Service: service}
 }
 
-func (h *Handler) GetMessagesHandler(w http.ResponseWriter, r *http.Request) {
-	messages, err := h.Service.GetAllMessages()
+func (h *Handler) GetTasks(ctx context.Context, request tasks.GetTasksRequestObject) (tasks.GetTasksResponseObject, error) {
+	allTasks, err := h.Service.GetAllMessages()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(messages)
+
+	response := tasks.GetTasks200JSONResponse{}
+	for _, tsk := range allTasks {
+		task := tasks.Task{
+			Id:     &tsk.ID,
+			Task:   &tsk.Text,
+			IsDone: &tsk.IsDone,
+		}
+		response = append(response, task)
+	}
+
+	return response, nil
 }
 
-func (h *Handler) PostMessageHandler(w http.ResponseWriter, r *http.Request) {
-	var message messagesService.Message
-	err := json.NewDecoder(r.Body).Decode(&message)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+func (h *Handler) PostTasks(ctx context.Context, request tasks.PostTasksRequestObject) (tasks.PostTasksResponseObject, error) {
+	taskRequest := request.Body
+	taskToCreate := messagesService.Message{
+		Text:   *taskRequest.Task,
+		IsDone: *taskRequest.IsDone,
 	}
-
-	createdMessage, err := h.Service.CreateMessage(message)
+	createdTask, err := h.Service.CreateMessage(taskToCreate)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(createdMessage)
+	response := tasks.PostTasks201JSONResponse{
+		Id:     &createdTask.ID,
+		Task:   &createdTask.Text,
+		IsDone: &createdTask.IsDone,
+	}
+	return response, nil
 }
 
-func (h *Handler) PatchMessageHandler(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id, err := strconv.Atoi(params["id"])
+func (h *Handler) PatchTasksId(ctx context.Context, request tasks.PatchTasksIdRequestObject) (tasks.PatchTasksIdResponseObject, error) {
+	updatedData := request.Body
+	id := request.Id
+
+	updatedTask, err := h.Service.UpdateMessage(id, messagesService.Message{
+		Text:   *updatedData.Task,
+		IsDone: *updatedData.IsDone,
+	})
 	if err != nil {
-		http.Error(w, "Invalid message ID", http.StatusBadRequest)
-		return
+		return nil, err
 	}
 
-	var message messagesService.Message
-	err = json.NewDecoder(r.Body).Decode(&message)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	response := tasks.PatchTasksId200JSONResponse{
+		Id:     &updatedTask.ID,
+		Task:   &updatedTask.Text,
+		IsDone: &updatedTask.IsDone,
 	}
-
-	updatedMessage, err := h.Service.UpdateMessage(id, message)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(updatedMessage)
+	return response, nil
 }
 
-func (h *Handler) PutMessageHandler(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id, err := strconv.Atoi(params["id"])
+func (h *Handler) DeleteTasksId(ctx context.Context, request tasks.DeleteTasksIdRequestObject) (tasks.DeleteTasksIdResponseObject, error) {
+	err := h.Service.DeleteMessageByID(request.Id)
 	if err != nil {
-		http.Error(w, "Invalid message ID", http.StatusBadRequest)
-		return
+		return nil, err
 	}
-
-	var message messagesService.Message
-	err = json.NewDecoder(r.Body).Decode(&message)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	updatedMessage, err := h.Service.UpdateMessage(id, message)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(updatedMessage)
-}
-
-func (h *Handler) DeleteMessageHandler(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id, err := strconv.Atoi(params["id"])
-	if err != nil {
-		http.Error(w, "Invalid message ID", http.StatusBadRequest)
-		return
-	}
-
-	err = h.Service.DeleteMessageByID(id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
+	return tasks.DeleteTasksId204Response{}, nil
 }
