@@ -21,3 +21,6 @@ run:
 # Команда для генерации кода на основе openapi.yaml
 gen:
 	oapi-codegen -config openapi/.openapi -include-tags tasks -package tasks openapi/openapi.yaml > ./internal/web/tasks/api.gen.go
+
+lint:
+	golangci-lint run --out-format=colored-line-number

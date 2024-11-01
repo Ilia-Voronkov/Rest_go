@@ -14,7 +14,11 @@ import (
 func main() {
 	// Инициализация базы данных
 	database.InitDB()
-	database.DB.AutoMigrate(&tasksService.Task{})
+
+	// Проверяем результат AutoMigrate на наличие ошибок
+	if err := database.DB.AutoMigrate(&tasksService.Task{}); err != nil {
+		log.Fatalf("Error during migration: %v", err)
+	}
 
 	// Создание репозитория, сервиса и хендлеров
 	repo := tasksService.NewTaskRepository(database.DB)
