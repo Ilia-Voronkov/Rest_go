@@ -2,26 +2,20 @@ package tasksService
 
 import "gorm.io/gorm"
 
-// TaskRepository - интерфейс репозитория для задач
+// TaskRepository - интерфейс для доступа к задачам в базе данных
 type TaskRepository interface {
-	CreateTask(task Task) (Task, error)
 	GetAllTasks() ([]Task, error)
-	UpdateTask(id int, updatedTask Task) (Task, error)
-	DeleteTaskByID(id int) error
+	CreateTask(task Task) (Task, error)
+	UpdateTask(id uint, updatedTask Task) (Task, error)
+	DeleteTaskByID(id uint) error
 }
 
 type taskRepository struct {
 	db *gorm.DB
 }
 
-// NewTaskRepository - создает новый репозиторий задач
 func NewTaskRepository(db *gorm.DB) TaskRepository {
 	return &taskRepository{db: db}
-}
-
-func (r *taskRepository) CreateTask(task Task) (Task, error) {
-	err := r.db.Create(&task).Error
-	return task, err
 }
 
 func (r *taskRepository) GetAllTasks() ([]Task, error) {
@@ -30,7 +24,12 @@ func (r *taskRepository) GetAllTasks() ([]Task, error) {
 	return tasks, err
 }
 
-func (r *taskRepository) UpdateTask(id int, updatedTask Task) (Task, error) {
+func (r *taskRepository) CreateTask(task Task) (Task, error) {
+	err := r.db.Create(&task).Error
+	return task, err
+}
+
+func (r *taskRepository) UpdateTask(id uint, updatedTask Task) (Task, error) {
 	var task Task
 	err := r.db.First(&task, id).Error
 	if err != nil {
@@ -42,6 +41,6 @@ func (r *taskRepository) UpdateTask(id int, updatedTask Task) (Task, error) {
 	return task, err
 }
 
-func (r *taskRepository) DeleteTaskByID(id int) error {
+func (r *taskRepository) DeleteTaskByID(id uint) error {
 	return r.db.Delete(&Task{}, id).Error
 }

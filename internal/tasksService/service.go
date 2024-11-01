@@ -1,26 +1,26 @@
 package tasksService
 
-// TaskService - сервис для работы с задачами
-type TaskService struct {
+// TasksService - структура для бизнес-логики задач
+type TasksService struct {
 	repo TaskRepository
 }
 
-func NewService(repo TaskRepository) *TaskService {
-	return &TaskService{repo: repo}
+func NewService(repo TaskRepository) *TasksService {
+	return &TasksService{repo: repo}
 }
 
-func (s *TaskService) CreateTask(task Task) (Task, error) {
-	return s.repo.CreateTask(task)
-}
-
-func (s *TaskService) GetAllTasks() ([]Task, error) {
+func (s *TasksService) GetAllTasks() ([]Task, error) {
 	return s.repo.GetAllTasks()
 }
 
-func (s *TaskService) UpdateTask(id int, newTask Task) (Task, error) {
-	return s.repo.UpdateTask(id, newTask)
+func (s *TasksService) CreateTask(task Task) (Task, error) {
+	return s.repo.CreateTask(task)
 }
 
-func (s *TaskService) DeleteTaskByID(id int) error {
+func (s *TasksService) UpdateTask(id uint, updatedTask Task) (Task, error) {
+	return s.repo.UpdateTask(id, updatedTask)
+}
+
+func (s *TasksService) DeleteTaskByID(id uint) error {
 	return s.repo.DeleteTaskByID(id)
 }

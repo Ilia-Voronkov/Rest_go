@@ -18,9 +18,9 @@ migrate-down:
 run:
 	go run cmd/app/main.go
 
-# Команда для генерации кода на основе openapi.yaml
-gen:
-	oapi-codegen -config openapi/.openapi -include-tags tasks -package tasks openapi/openapi.yaml > ./internal/web/tasks/api.gen.go
 
 lint:
 	golangci-lint run --out-format=colored-line-number
+gen:
+	oapi-codegen -config openapi/.openapi -include-tags tasks -package tasks openapi/openapi.yaml > ./internal/web/tasks/api.gen.go
+	oapi-codegen -config openapi/.openapi -include-tags users -package users openapi/openapi.yaml > ./internal/web/users/api.gen.go

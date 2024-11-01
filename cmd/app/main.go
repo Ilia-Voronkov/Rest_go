@@ -1,29 +1,33 @@
 package main
 
 import (
-	"log"
-
 	"Rest_go/internal/database"
 	"Rest_go/internal/handlers"
 	"Rest_go/internal/tasksService"
+	"Rest_go/internal/userService"
 	"Rest_go/internal/web/tasks"
+	"Rest_go/internal/web/users"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"log"
 )
 
 func main() {
 	// Инициализация базы данных
 	database.InitDB()
-
-	// Проверяем результат AutoMigrate на наличие ошибок
-	if err := database.DB.AutoMigrate(&tasksService.Task{}); err != nil {
-		log.Fatalf("Error during migration: %v", err)
+	// Проверка ошибки при автоматической миграции
+	if err := database.DB.AutoMigrate(&tasksService.Task{}, &userService.User{}); err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
-	// Создание репозитория, сервиса и хендлеров
-	repo := tasksService.NewTaskRepository(database.DB)
-	service := tasksService.NewService(repo)
-	handler := handlers.NewHandler(service)
+	// Создание репозиториев, сервисов и обработчиков
+	tasksRepo := tasksService.NewTaskRepository(database.DB)
+	tasksService := tasksService.NewService(tasksRepo)
+	tasksHandler := handlers.NewTasksHandler(tasksService)
+
+	userRepo := userService.NewUserRepository(database.DB)
+	userService := userService.NewService(userRepo)
+	userHandler := handlers.NewUserHandler(userService)
 
 	// Инициализация Echo
 	e := echo.New()
@@ -31,8 +35,8 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Регистрация маршрутов
-	strictHandler := tasks.NewStrictHandler(handler, nil)
-	tasks.RegisterHandlers(e, strictHandler)
+	tasks.RegisterHandlers(e, tasksHandler)
+	users.RegisterHandlers(e, userHandler)
 
 	// Запуск сервера
 	if err := e.Start(":8080"); err != nil {
