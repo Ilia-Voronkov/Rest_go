@@ -1,21 +1,21 @@
 package handlers
 
 import (
-	"Rest_go/internal/messagesService"
+	"Rest_go/internal/tasksService"
 	"Rest_go/internal/web/tasks"
 	"context"
 )
 
 type Handler struct {
-	Service *messagesService.MessageService
+	Service *tasksService.TaskService
 }
 
-func NewHandler(service *messagesService.MessageService) *Handler {
+func NewHandler(service *tasksService.TaskService) *Handler {
 	return &Handler{Service: service}
 }
 
 func (h *Handler) GetTasks(ctx context.Context, request tasks.GetTasksRequestObject) (tasks.GetTasksResponseObject, error) {
-	allTasks, err := h.Service.GetAllMessages()
+	allTasks, err := h.Service.GetAllTasks()
 	if err != nil {
 		return nil, err
 	}
@@ -35,11 +35,11 @@ func (h *Handler) GetTasks(ctx context.Context, request tasks.GetTasksRequestObj
 
 func (h *Handler) PostTasks(ctx context.Context, request tasks.PostTasksRequestObject) (tasks.PostTasksResponseObject, error) {
 	taskRequest := request.Body
-	taskToCreate := messagesService.Message{
+	taskToCreate := tasksService.Task{
 		Text:   *taskRequest.Task,
 		IsDone: *taskRequest.IsDone,
 	}
-	createdTask, err := h.Service.CreateMessage(taskToCreate)
+	createdTask, err := h.Service.CreateTask(taskToCreate)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (h *Handler) PatchTasksId(ctx context.Context, request tasks.PatchTasksIdRe
 	updatedData := request.Body
 	id := request.Id
 
-	updatedTask, err := h.Service.UpdateMessage(id, messagesService.Message{
+	updatedTask, err := h.Service.UpdateTask(id, tasksService.Task{
 		Text:   *updatedData.Task,
 		IsDone: *updatedData.IsDone,
 	})
@@ -72,7 +72,7 @@ func (h *Handler) PatchTasksId(ctx context.Context, request tasks.PatchTasksIdRe
 }
 
 func (h *Handler) DeleteTasksId(ctx context.Context, request tasks.DeleteTasksIdRequestObject) (tasks.DeleteTasksIdResponseObject, error) {
-	err := h.Service.DeleteMessageByID(request.Id)
+	err := h.Service.DeleteTaskByID(request.Id)
 	if err != nil {
 		return nil, err
 	}
