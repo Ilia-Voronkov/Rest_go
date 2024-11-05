@@ -6,6 +6,7 @@ import (
 	"Rest_go/internal/database"
 	"Rest_go/internal/handlers"
 	"Rest_go/internal/models"
+
 	"Rest_go/internal/tasksService"
 	"Rest_go/internal/userService"
 	"Rest_go/internal/web/tasks"
@@ -20,6 +21,7 @@ func main() {
 
 	// Проверка ошибки при автоматической миграции
 	if err := database.DB.AutoMigrate(&models.Task{}, &models.User{}); err != nil {
+
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 

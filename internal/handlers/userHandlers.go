@@ -8,16 +8,19 @@ import (
 )
 
 // UserHandler - структура обработчика пользователей
+
 type UserHandler struct {
 	Service *userService.UserService
 }
 
 // NewUserHandler - конструктор UserHandler
+
 func NewUserHandler(service *userService.UserService) *UserHandler {
 	return &UserHandler{Service: service}
 }
 
 // GetUsers - получение всех пользователей
+
 func (h *UserHandler) GetUsers(ctx echo.Context) error {
 	users, err := h.Service.GetAllUsers()
 	if err != nil {
@@ -57,6 +60,7 @@ func (h *UserHandler) PatchUsersId(ctx echo.Context, id int) error {
 // DeleteUsersId - удаление пользователя по ID (исправлен тип аргумента на int)
 func (h *UserHandler) DeleteUsersId(ctx echo.Context, id int) error {
 	if err := h.Service.DeleteUserByID(uint(id)); err != nil {
+
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 	return ctx.NoContent(http.StatusNoContent)

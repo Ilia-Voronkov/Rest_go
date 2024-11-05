@@ -8,4 +8,5 @@ type User struct {
 	Email    string        `json:"email"`
 	Password string        `json:"password"`
 	Tasks    []models.Task `json:"tasks"` // Связь с задачами
+
 }

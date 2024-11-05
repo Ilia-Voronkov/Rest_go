@@ -1,8 +1,6 @@
 package userService
 
-import (
-	"Rest_go/internal/models"
-)
+import "Rest_go/internal/models"
 
 // UserService - структура для бизнес-логики пользователей
 type UserService struct {
@@ -30,6 +28,7 @@ func (s *UserService) UpdateUser(id uint, updatedUser models.User) (models.User,
 }
 
 // DeleteUserByID - удаление пользователя по ID
+
 func (s *UserService) DeleteUserByID(id uint) error {
 	return s.repo.DeleteUserByID(id)
 }

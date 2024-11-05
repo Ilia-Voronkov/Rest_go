@@ -10,6 +10,7 @@ type UserRepository interface {
 	GetAllUsers() ([]models.User, error)
 	CreateUser(user models.User) (models.User, error)
 	UpdateUser(id uint, updatedUser models.User) (models.User, error)
+
 	DeleteUserByID(id uint) error
 }
 
@@ -18,6 +19,7 @@ type userRepository struct {
 }
 
 // NewUserRepository - конструктор userRepository
+
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
@@ -57,4 +59,5 @@ func (r *userRepository) DeleteUserByID(id uint) error {
 		return err
 	}
 	return nil
+
 }

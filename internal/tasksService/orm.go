@@ -1,7 +1,7 @@
 package tasksService
 
 import (
-	"Rest_go/internal/models" // Импортируем новый пакет models
+	"Rest_go/internal/models"
 	"gorm.io/gorm"
 )
 

@@ -34,6 +34,7 @@ func (s *TasksService) UpdateTask(id uint, updatedTask models.Task) (models.Task
 }
 
 // DeleteTaskByID - удаление задачи по ID
+
 func (s *TasksService) DeleteTaskByID(id uint) error {
 	return s.repo.DeleteTaskByID(id)
 }
